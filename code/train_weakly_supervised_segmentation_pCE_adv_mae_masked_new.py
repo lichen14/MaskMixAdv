@@ -161,11 +161,13 @@ def train(args, snapshot_path):
             loss_mae = mae_loss(input=restore_img[:,mask1==0],target=volume_batch[:,mask1==0])
             # loss_mae = mae_loss(input=restore_img,target=volume_batch)
 
-            beta = random.random() + 1e-10  # soft :avoid beta=zero
-            pseudo_output = beta * outputs_soft1 + (1.0-beta) * outputs_soft2
+            # beta = random.random() + 1e-10  # soft :avoid beta=zero
+            # pseudo_output = beta * outputs_soft1 + (1.0-beta) * outputs_soft2
+            pseudo_output = mask1.cuda() * outputs_soft1 + mask2.cuda() * outputs_soft2
+
             # loss = loss_adv_trg_main
             # loss.requires_grad_()
-            # loss.backward(retain_graph=True) #以上是公式(8)的损失
+            # loss.backward(retain_graph=True) 
 
             # print(outputs1_hard.shape,outputs2_hard.shape,mask1.shape,mask2.shape)
             # pseudo_output = torch.empty(outputs_soft1.shape).cuda()
@@ -185,8 +187,8 @@ def train(args, snapshot_path):
             loss_pse_sup = 0.5 * (dice_loss(outputs_soft1, pseudo_supervision) + 
                                 dice_loss(outputs_soft2, pseudo_supervision))        #Eq.(3) L_PLS : pseudo labels supervision
 
-            lamda = 10 if epoch_num >2 else 0
-            loss = loss_ce * 10 + lamda*loss_pse_sup + 10 * loss_mae         #Eq.(4) L_total lamda=0.5
+            # lamda = 10 if epoch_num >2 else 0
+            loss = loss_ce * 10 + 0.5*loss_pse_sup + 10 * loss_mae         #Eq.(4) L_total lamda=0.5
             optimizer.zero_grad()
             loss.backward()
             # if i_batch >100:
@@ -219,16 +221,10 @@ def train(args, snapshot_path):
             optimizer.step()
 
             
-            
-            # for param in model.parameters():      #%%%%%%%%%%%%%%%!!!!!!!!!!!!!!
+            # for param in model.parameters():      
             #     param.requires_grad = False
             # for param in dis_main.parameters():
             #     param.requires_grad = True
-
-            # optimizer_dis.zero_grad()
-            # # _, batch = trainloader_iter.__next__()
-            # # images_source, labels, _, _ = batch
-
 
             optimizer_dis.zero_grad()
             dis_real = dis_main(real_mask)

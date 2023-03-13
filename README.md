@@ -7,24 +7,19 @@
 
 <p align="center"><img width="100%" src="imgs/framework5.png" /></p>
 
-In this repository we release multiple models from our paper.  
-
-
 ## Major results from our work
-1. **The proposed MaskMixAdv achieved the best performance among all self-supervised learning methods and ImageNet-based supervised SOTA methods on all tasks. Results demonstrated the performance superiority and robustness of our work. Therefore, MaskMixAdv provided a more promising preferred initialization alternative for most medical image analysis tasks, especially those without annotations.**
+1. **The proposed MaskMixAdv achieved the best performance among all weakly-supervised learning SOTA methods on the MRI cardiac segmentation task. Results demonstrated the performance superiority of our work. Therefore, MaskMixAdv provided a more promising preferred alternative for scribble-supervised medical image segmentation, especially those without dense annotations.**
 
 <p align="center"><img width="100%" src="imgs/compare_result.png" /></p>
 
 
-2. **Contrastive learning with generative proxy tasks outperformed traditional ones ($\mathcal L_{Con}^{NL+M}>\mathcal L_{Con}^{*}$), demonstrating the effectiveness of generative proxy tasks in improving contrastive learning. 
-Results demonstrated that our work unlocked the power of contrastive learning in medical image analysis. The whole framework achieved the best performance and convergence after synergizing contrastive and generative learning ($\mathcal L_{Con}^{NL+M}$+$\mathcal L_{Gen}^{NL+M}>\mathcal L_{Con}^{NL+M}$ and $>\mathcal L_{Gen}^{NL+M}$), demonstrating the effectiveness of cooperation between generative and contrastive learning.**
-
-<p align="center"><img width="100%" src="imgs/ablation_result.png" /></p>
-
-
-3. **MaskMixAdv can mitigate the lack of annotations, resulting in a more label-efficient deep learning in medical image analysis. MaskMixAdv can be fine-tuned on a few labeled datasets to achieve comparable performance to the full-labeled dataset.**
+2. **Visualization of the results illustrated that the discrepancy between MaskMixAdv trained on scribbles and the supervised method trained on dense annotations was minor. Besides, compared with previous methods that generated misshapen predictions, MaskMixAdv generated more realistic and reasonable segmentation masks, demonstrating the effectiveness of shape-aware adversarial learning that incorporated the boundary priors and encouraged the network to localize objects in the image.**
 
 <p align="center"><img width="100%" src="imgs/result1.png" /></p>
+
+3. **Ablation study indicated that: 1) Scribble-supervised methods performed poorly when only \mathcal L_{pCE} and \mathcal L_{DpCE} were applied. In contrast, performance improved after introducing \mathcal L_{rec}, demonstrating the effectiveness of the reconstruction method in helping the dual-branch siamese network to extract features from sparse supervision. 2) However, the performance of \mathcal L_{DpCE}+ \mathcal L_{rec} was still not satisfied. The pseudo labeling component (\mathcal L_{pse}) improved it, demonstrating the effectiveness of the MaskMix strategy in enhancing scribble-supervised learning (Issue \sharp1). 3) We observed that the HD_{95} of \mathcal L_{DpCE}+\mathcal L_{rec}+\mathcal L_{pse} was still far below that of supervised methods, which meant that some target structures were lost and the boundaries were imprecise. However, adversarial learning (\mathcal L_{adv}) optimized this drawback (Issue \sharp2), reducing the HD_{95} discrepancy between the weakly and fully supervised methods.**
+
+<p align="center"><img width="100%" src="imgs/ablation_result.png" /></p>
 
 
 ## Packages Installation
@@ -33,10 +28,6 @@ Clone the repository and install dependencies using the following command:
 $ cd MaskMixAdv
 $ pip install -r requirements.txt
 ```
-
-## Model Implementation
-In this paper, we evaluate 19 pre-trained ResNet50 models, including: 1 supervised ImageNet model, 17 self-supervised models, and our proposed model. To download and prepare all models in the same format, run:
-
 
 # Dataset
 Datasets and more details can be found from the following links. 
@@ -54,7 +45,6 @@ ACDC/
       --patient001_frame01.h5
       ...
 ```
-
 
 ## Models pre-training
 1. Download the desired dataset or you can simply add any other dataset that you wish. Save them to `./data` directory.
