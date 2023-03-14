@@ -22,12 +22,20 @@
 <p align="center"><img width="100%" src="imgs/ablation_result.png" /></p>
 
 
-## Packages Installation
-Clone the repository and install dependencies using the following command:
-```bash
-$ cd MaskMixAdv
-$ pip install -r requirements.txt
-```
+## Packages Requirements
+- Hardware: PC with NVIDIA 1080T GPU. (others are alternative.)
+- Software: *Ubuntu 18.04*, *CUDA 10.0.130*, *pytorch 1.3.0*, *Python 3.6.9* (others are alternative.)
+- Some important required packages include:
+  - `torchvision`
+  - `tensorboardX`
+  - `scikit-learn`
+  - `glob`
+  - `matplotlib`
+  - `skimage`
+  - `medpy`
+  - `tqdm`
+  - `Efficientnet-Pytorch`: `pip install efficientnet_pytorch`
+  - Other basic python packages such as `Numpy`, `Scikit-image`, `SimpleITK`, `Scipy`, `cv2` ......
 
 # Dataset
 Datasets and more details can be found from the following links. 
@@ -45,10 +53,6 @@ ACDC/
       --patient001_frame01.h5
       ...
 ```
-
-## Models pre-training
-1. Download the desired dataset or you can simply add any other dataset that you wish. Save them to `./data` directory.
-2. Run:
 
 # Usage
 
@@ -72,10 +76,6 @@ cd code
 ```
 python test_2D_fully.py --sup_type scribble/label --exp ACDC/the trained model fold --model unet
 ```
-
-5. Training curves on the fold1:
-
-**Note**: pCE means partially cross-entropy, TV means total variation, label denotes supervised by mask, scribble represents just supervised by scribbles.
 
 # Implemented methods
 * [**pCE**](https://openaccess.thecvf.com/content_cvpr_2018/papers/Tang_Normalized_Cut_Loss_CVPR_2018_paper.pdf)

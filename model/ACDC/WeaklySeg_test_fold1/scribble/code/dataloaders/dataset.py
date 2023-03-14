@@ -100,8 +100,6 @@ class BaseDataSets(Dataset):
             return [fold4_training_set, fold4_testing_set]
         elif fold == "fold5":
             return [fold5_training_set, fold5_testing_set]
-        elif fold == "fold0":
-            return [all_cases_set, all_cases_set]
         else:
             return "ERROR KEY"
 
@@ -118,15 +116,14 @@ class BaseDataSets(Dataset):
                             "/ACDC_training_volumes/{}".format(case), 'r')
         image = h5f['image'][:]
         label = h5f['label'][:]
-        mask  = h5f['label'][:]
-        sample = {'image': image, 'label': label, 'mask':mask}
+        sample = {'image': image, 'label': label}
         if self.split == "train":
             image = h5f['image'][:]
             if self.sup_type == "random_walker":
                 label = pseudo_label_generator_acdc(image, h5f["scribble"][:])
             else:
                 label = h5f[self.sup_type][:]
-            sample = {'image': image, 'label': label, 'mask':mask}
+            sample = {'image': image, 'label': label}
             sample = self.transform(sample)
         else:
             image = h5f['image'][:]
@@ -136,26 +133,22 @@ class BaseDataSets(Dataset):
         return sample
 
 
-def random_rot_flip(image, label, mask):
+def random_rot_flip(image, label):
     k = np.random.randint(0, 4)
     image = np.rot90(image, k)
     label = np.rot90(label, k)
-    mask = np.rot90(mask, k)
     axis = np.random.randint(0, 2)
     image = np.flip(image, axis=axis).copy()
     label = np.flip(label, axis=axis).copy()
-    mask = np.flip(mask, axis=axis).copy()
-    return image, label, mask
+    return image, label
 
 
-def random_rotate(image, label, mask, cval):
+def random_rotate(image, label, cval):
     angle = np.random.randint(-20, 20)
     image = ndimage.rotate(image, angle, order=0, reshape=False)
     label = ndimage.rotate(label, angle, order=0,
                            reshape=False, mode="constant", cval=cval)
-    # mask = ndimage.rotate(mask, angle, order=0,
-    #                        reshape=False, mode="constant", cval=cval)
-    return image, label, mask
+    return image, label
 
 
 class RandomGenerator(object):
@@ -163,30 +156,26 @@ class RandomGenerator(object):
         self.output_size = output_size
 
     def __call__(self, sample):
-        image, label, mask = sample['image'], sample['label'], sample['mask']
+        image, label = sample['image'], sample['label']
         # ind = random.randrange(0, img.shape[0])
         # image = img[ind, ...]
         # label = lab[ind, ...]
         if random.random() > 0.5:
-            image, label, mask = random_rot_flip(image, label, mask)
+            image, label = random_rot_flip(image, label)
         elif random.random() > 0.5:
             if 4 in np.unique(label):
-                image, label, mask = random_rotate(image, label, mask, cval=4)
+                image, label = random_rotate(image, label, cval=4)
             else:
-                image, label, mask = random_rotate(image, label, mask, cval=0)
+                image, label = random_rotate(image, label, cval=0)
         x, y = image.shape
         image = zoom(
             image, (self.output_size[0] / x, self.output_size[1] / y), order=0)
         label = zoom(
             label, (self.output_size[0] / x, self.output_size[1] / y), order=0)
-        mask = zoom(
-            mask, (self.output_size[0] / x, self.output_size[1] / y), order=0)
-        # print(image.shape,mask.shape)
         image = torch.from_numpy(
             image.astype(np.float32)).unsqueeze(0)
         label = torch.from_numpy(label.astype(np.uint8))
-        mask = torch.from_numpy(mask.astype(np.uint8))
-        sample = {'image': image, 'label': label,  'mask': mask}
+        sample = {'image': image, 'label': label}
         return sample
 
 

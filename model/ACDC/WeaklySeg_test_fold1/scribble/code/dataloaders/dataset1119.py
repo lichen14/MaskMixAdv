@@ -14,6 +14,10 @@ from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
 import nibabel as nib
 
+def load_nii(img_path):
+    nimg = nib.load(img_path)
+    return nimg.get_data(), nimg.affine, nimg.header
+
 def pseudo_label_generator_acdc(data, seed, beta=100, mode='bf'):
     from skimage.exposure import rescale_intensity
     from skimage.segmentation import random_walker
@@ -45,7 +49,7 @@ class BaseDataSets(Dataset):
         if self.split == 'train':
             self.all_slices = os.listdir(
                 self._base_dir + "/ACDC_training_slices")
-            self.all_masks = glob("../data/MSCMR_dataset/train/labels/*")
+            self.all_masks = glob.glob("../data/MSCMR_dataset/train/labels")
             self.sample_list = []
             for ids in train_ids:
                 new_data_list = list(filter(lambda x: re.match(
@@ -55,7 +59,7 @@ class BaseDataSets(Dataset):
         elif self.split == 'val':
             self.all_volumes = os.listdir(
                 self._base_dir + "/ACDC_training_volumes")
-            self.all_masks = glob("../data/MSCMR_dataset/val/labels/*")
+            self.all_masks = glob.glob("../data/MSCMR_dataset/val/labels")
             self.sample_list = []
             for ids in test_ids:
                 new_data_list = list(filter(lambda x: re.match(
@@ -111,27 +115,27 @@ class BaseDataSets(Dataset):
         return len(self.sample_list)
 
     def __getitem__(self, idx):
-        mask_case = random.choice(self.all_masks)
         case = self.sample_list[idx]
+        mask_case = self.all_masks[idx]
         if self.split == "train":
             h5f = h5py.File(self._base_dir +
                             "/ACDC_training_slices/{}".format(case), 'r')
             mask_nib = nib.load(mask_case)
+            print(mask_case)
         else:
             h5f = h5py.File(self._base_dir +
                             "/ACDC_training_volumes/{}".format(case), 'r')
         image = h5f['image'][:]
         label = h5f['label'][:]
-        mask  = mask_nib.get_data()
-        mask_idx = random.randrange(mask.shape[-1])
-        sample = {'image': image, 'label': label, 'mask':mask[:,:,mask_idx]}
+        mask  = h5f['label'][:]
+        sample = {'image': image, 'label': label, 'mask':mask}
         if self.split == "train":
             image = h5f['image'][:]
             if self.sup_type == "random_walker":
                 label = pseudo_label_generator_acdc(image, h5f["scribble"][:])
             else:
                 label = h5f[self.sup_type][:]
-            sample = {'image': image, 'label': label, 'mask':mask[:,:,mask_idx]}
+            sample = {'image': image, 'label': label, 'mask':mask}
             sample = self.transform(sample)
         else:
             image = h5f['image'][:]
@@ -185,7 +189,7 @@ class RandomGenerator(object):
         label = zoom(
             label, (self.output_size[0] / x, self.output_size[1] / y), order=0)
         mask = zoom(
-            mask, (self.output_size[0] / mask.shape[0], self.output_size[1] /mask.shape[1]), order=0)
+            mask, (self.output_size[0] / x, self.output_size[1] / y), order=0)
         # print(image.shape,mask.shape)
         image = torch.from_numpy(
             image.astype(np.float32)).unsqueeze(0)

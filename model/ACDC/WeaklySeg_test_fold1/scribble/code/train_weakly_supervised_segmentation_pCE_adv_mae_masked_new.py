@@ -55,7 +55,7 @@ parser.add_argument('--patch_size', type=list,  default=[256, 256],
                     help='patch size of network input')
 parser.add_argument('--seed', type=int,  default=42, help='random seed')
 parser.add_argument('--device', help='cuda|cpu', default="cuda")
-parser.add_argument('--optim', help='sgd|adam', default="adam")
+parser.add_argument('--optim', help='sgd|adam', default="sgd")
 parser.add_argument('--mask_ratio', type=float, default=0.5)
 
 args = parser.parse_args()
@@ -155,66 +155,24 @@ def train(args, snapshot_path):
             
             loss_ce1 = ce_loss(outputs1, label_batch[:].long())
             loss_ce2 = ce_loss(outputs2, label_batch[:].long())
-            loss_ce3 = ce_loss((mask1.cuda() * outputs1 + mask2.cuda() * outputs2),label_batch[:].long())
-            loss_ce = 0.5 * (loss_ce1 + loss_ce2) + loss_ce3   #Eq.(1) L_pce: scribble supervision
+            loss_ce = 0.5 * (loss_ce1 + loss_ce2)   
 
             loss_mae = mae_loss(input=restore_img[:,mask1==0],target=volume_batch[:,mask1==0])
-            # loss_mae = mae_loss(input=restore_img,target=volume_batch)
 
-            # beta = random.random() + 1e-10  # soft :avoid beta=zero
-            # pseudo_output = beta * outputs_soft1 + (1.0-beta) * outputs_soft2
             pseudo_output = mask1.cuda() * outputs_soft1 + mask2.cuda() * outputs_soft2
 
-            # loss = loss_adv_trg_main
-            # loss.requires_grad_()
-            # loss.backward(retain_graph=True) 
-
-            # print(outputs1_hard.shape,outputs2_hard.shape,mask1.shape,mask2.shape)
-            # pseudo_output = torch.empty(outputs_soft1.shape).cuda()
-            # pseudo_output[:,:,mask1.cuda().squeeze(0)>0] = outputs_soft1[:,:,mask1.cuda().squeeze(0)>0].detach()
-            # pseudo_output[:,:,mask2.cuda().squeeze(0)>0] = outputs_soft2[:,:,mask2.cuda().squeeze(0)>0].detach()
-            # print(pseudo_supervision.shape)
-            # pseudo_output = beta * outputs_soft1 + (1.0-beta) * outputs_soft2
-            # pseudo_supervision = torch.argmax(
-            #     (mask1.cuda() * outputs_soft1.detach() + mask2.cuda() * outputs_soft2.detach()), dim=1, keepdim=False)
-
             pseudo_supervision = torch.argmax(pseudo_output, dim=1, keepdim=True).type(torch.FloatTensor).cuda()
-            
 
-            # pseudo_supervision = torch.argmax(
-            #     pseudo_output, dim=1, keepdim=False)        #Eq.(2) generate pseudo label
-            # print(pseudo_supervision.shape)
             loss_pse_sup = 0.5 * (dice_loss(outputs_soft1, pseudo_supervision) + 
-                                dice_loss(outputs_soft2, pseudo_supervision))        #Eq.(3) L_PLS : pseudo labels supervision
+                                dice_loss(outputs_soft2, pseudo_supervision))       
 
-            # lamda = 10 if epoch_num >2 else 0
-            loss = loss_ce * 10 + 0.5*loss_pse_sup + 10 * loss_mae         #Eq.(4) L_total lamda=0.5
+
+            loss = loss_ce * 10 + 0.5*loss_pse_sup + 10 * loss_mae         
             optimizer.zero_grad()
             loss.backward()
-            # if i_batch >100:
-            #     plt.subplot(231)
-            #     plt.imshow((torch.argmax(
-            #         (mask1.cuda() * outputs_soft1), dim=1, keepdim=False)+torch.argmax(
-            #         (mask2.cuda() * outputs_soft2), dim=1, keepdim=False)).cpu().data[0])
-            #     # # plt.show()
-            #     plt.subplot(232)
-            #     plt.imshow(outputs1_hard.cpu().data[0])#, cmap='Greys_r') # 显示图片
-            #     plt.subplot(233)
-            #     plt.imshow(real_mask.cpu().data[0])
-            #     # plt.subplot(224)
-            #     # plt.imshow(np.transpose(mask2,(1,2,0)))
-            #     plt.subplot(234)
-            #     plt.imshow(pseudo_supervision.cpu().data[0])
-            #     plt.subplot(235)
-            #     plt.imshow(torch.argmax(
-            #         (mask1.cuda() * outputs_soft1), dim=1, keepdim=False).cpu().data[0])
-            #     plt.subplot(236)
-            #     plt.imshow(torch.argmax(
-            #         (mask2.cuda() * outputs_soft2), dim=1, keepdim=False).cpu().data[0])
-            #     plt.show()
 
             lamda = 0.1 #if epoch_num <10 else 0
-            dis_out_main = dis_main(pseudo_supervision)   #softmax得到0-1的概率prob，prob_2_entropy转化为self-information I_x
+            dis_out_main = dis_main(pseudo_supervision)   
             # print('dis_out_main',dis_out_main)    #[1, 1, 8, 8]
             loss_adv_trg_main = lamda*bce_loss(dis_out_main, REAL)
             loss_adv_trg_main.backward()
@@ -233,7 +191,6 @@ def train(args, snapshot_path):
             # loss_dis_main = loss_dis_main / 2
             # loss_dis_main.backward()
 
-            # train with target 在目标域的损失
             dis_fake_detach = dis_main(pseudo_supervision.detach())
             loss_dis_main2 = bce_loss(dis_fake_detach, FAKE)
 
@@ -242,7 +199,6 @@ def train(args, snapshot_path):
             loss_dis_main.backward()
             optimizer_dis.step()
 
-            # lr_ = lr_scheduler.get_last_lr()[0]
             lr_ = base_lr * (1.0 - iter_num / max_iterations) ** 0.9
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr_
@@ -289,57 +245,32 @@ def train(args, snapshot_path):
                 labs = label_batch[1, ...].unsqueeze(0) * 50
                 writer.add_image('train/GroundTruth', labs, iter_num)
 
-            if iter_num > 0 and iter_num % 200 == 0:
-                model.eval()
-                metric_list = 0.0
-                for i_batch, sampled_batch in enumerate(valloader):
-                    metric_i = test_single_volume_mae(
-                        sampled_batch["image"], sampled_batch["label"], model, classes=num_classes)
-                    metric_list += np.array(metric_i)
-                metric_list = metric_list / len(db_val)
-                for class_i in range(num_classes-1):
-                    writer.add_scalar('info/val_{}_dice'.format(class_i+1),
-                                      metric_list[class_i, 0], iter_num)
-                    writer.add_scalar('info/val_{}_hd95'.format(class_i+1),
-                                      metric_list[class_i, 1], iter_num)
+                if iter_num > 0 :
+                    model.eval()
+                    metric_list = 0.0
+                    for i_batch, sampled_batch in enumerate(valloader):
+                        metric_i = test_single_volume_mae(
+                            sampled_batch["image"], sampled_batch["label"], model, classes=num_classes)
+                        metric_list += np.array(metric_i)
+                    metric_list = metric_list / len(db_val)
+                    for class_i in range(num_classes-1):
+                        writer.add_scalar('info/val_{}_dice'.format(class_i+1),
+                                        metric_list[class_i, 0], iter_num)
+                        writer.add_scalar('info/val_{}_hd95'.format(class_i+1),
+                                        metric_list[class_i, 1], iter_num)
 
-                performance = np.mean(metric_list, axis=0)[0]
+                    performance = np.mean(metric_list, axis=0)[0]
 
-                mean_hd95 = np.mean(metric_list, axis=0)[1]
-                writer.add_scalar('info/val_mean_dice', performance, iter_num)
-                writer.add_scalar('info/val_mean_hd95', mean_hd95, iter_num)
+                    mean_hd95 = np.mean(metric_list, axis=0)[1]
+                    writer.add_scalar('info/val_mean_dice', performance, iter_num)
+                    writer.add_scalar('info/val_mean_hd95', mean_hd95, iter_num)
 
-                if performance > best_performance:
-
-                    save_mode_path = os.path.join(snapshot_path,
-                                                  'iter_{}_dice_{}.pth'.format(
-                                                      iter_num, round(performance, 4)))
-                    save_best = os.path.join(snapshot_path,
-                                             '{}_best_model.pth'.format(args.model))
-                    # torch.save(model.state_dict(), save_mode_path)
-                    torch.save(model.state_dict(), save_best)
-
-                    print("Epoch {:04d}: DICE improved from {:.5f} to {:.5f}, best model saved in {}".format(epoch_num, best_performance, performance,save_mode_path))
-                    
-                    best_performance = performance
-                    best_mean_hd95 = mean_hd95
-                    best_iter_num = iter_num
+                    save_mode_path = os.path.join(snapshot_path,'iter_{}.pth'.format(iter_num))
+                    torch.save(model.state_dict(), save_mode_path)
 
                 logging.info(
                     'iteration %d : mean_dice : %f mean_hd95 : %f' % (iter_num, performance, mean_hd95))
                 model.train()
-
-            if iter_num > 0 and iter_num % 500 == 0:
-                if alpha > 0.01:
-                    alpha = alpha - 0.01
-                else:
-                    alpha = 0.01
-
-            if iter_num % 30000 == 0 and iter_num >100:
-                save_mode_path = os.path.join(
-                    snapshot_path, 'iter_' + str(iter_num) + '.pth')
-                torch.save(model.state_dict(), save_mode_path)
-                logging.info("save model to {}".format(save_mode_path))
 
             if iter_num >= max_iterations:
                 break
@@ -348,8 +279,6 @@ def train(args, snapshot_path):
         if iter_num >= max_iterations:
             iterator.close()
             break
-    logging.info(
-    'best iteration %d : best_dice : %f best_hd95 : %f' % (best_iter_num, best_performance, best_mean_hd95))
     writer.close()
     return "Training Finished!"
 
