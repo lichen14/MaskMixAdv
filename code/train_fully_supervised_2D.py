@@ -84,13 +84,13 @@ def train(args, snapshot_path):
 
     model.train()
 
-    dis_main = get_fc_discriminator(num_classes=1)
-    dis_main.cuda()
-    dis_main.train()
+    # dis_main = get_fc_discriminator(num_classes=1)
+    # dis_main.cuda()
+    # dis_main.train()
 
 
     optimizer = optim.Adam(model.parameters(), lr=base_lr)
-    optimizer_dis = optim.Adam(dis_main.parameters(), lr=base_lr)
+    # optimizer_dis = optim.Adam(dis_main.parameters(), lr=base_lr)
 
     ce_loss = CrossEntropyLoss(ignore_index=4)
     dice_loss = losses.DiceLoss(num_classes)
@@ -117,22 +117,7 @@ def train(args, snapshot_path):
             # loss = loss_ce
             optimizer.zero_grad()
             loss.backward()
-
-            pseudo_supervision = torch.argmax(outputs_soft, dim=1, keepdim=False)
-            dis_output = dis_main(pseudo_supervision)
-            g_loss = bce_loss(dis_output,REAL_LABEL)
-            g_loss.backward()
             optimizer.step()
-
-            optimizer_dis.zero_grad()
-            dis_real = dis_main(real_mask)
-            dis_fake_detach = dis_main(pseudo_supervision.detach())
-
-            real_loss = bce_loss(dis_real,REAL_LABEL)
-            fake_loss = bce_loss(dis_fake_detach,FAKE_LABEL)
-            d_loss = (real_loss+fake_loss)/2
-            d_loss.backward()
-            optimizer_dis.step()
 
 
             lr_ = base_lr * (1.0 - iter_num / max_iterations) ** 0.9
@@ -142,8 +127,6 @@ def train(args, snapshot_path):
             iter_num = iter_num + 1
             writer.add_scalar('info/lr', lr_, iter_num)
             writer.add_scalar('info/total_loss', loss, iter_num)
-            writer.add_scalar('info/g_loss', g_loss, iter_num)
-            writer.add_scalar('info/d_loss', d_loss, iter_num)
 
             logging.info(
                 'iteration %d : loss : %f, loss_ce: %f' %

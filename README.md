@@ -7,21 +7,6 @@
 
 <p align="center"><img width="100%" src="imgs/framework5.png" /></p>
 
-## Major results from our work
-1. **The proposed MaskMixAdv achieved the best performance among all weakly-supervised learning SOTA methods on the MRI cardiac segmentation task. Results demonstrated the performance superiority of our work. Therefore, MaskMixAdv provided a more promising preferred alternative for scribble-supervised medical image segmentation, especially those without dense annotations.**
-
-<p align="center"><img width="100%" src="imgs/compare_result.png" /></p>
-
-
-2. **Visualization of the results illustrated that the discrepancy between MaskMixAdv trained on scribbles and the supervised method trained on dense annotations was minor. Besides, compared with previous methods that generated misshapen predictions, MaskMixAdv generated more realistic and reasonable segmentation masks, demonstrating the effectiveness of shape-aware adversarial learning that incorporated the boundary priors and encouraged the network to localize objects in the image.**
-
-<p align="center"><img width="100%" src="imgs/result1.png" /></p>
-
-3. **Ablation study indicated that: 1) Scribble-supervised methods performed poorly when only \mathcal L_{pCE} and \mathcal L_{DpCE} were applied. In contrast, performance improved after introducing \mathcal L_{rec}, demonstrating the effectiveness of the reconstruction method in helping the dual-branch siamese network to extract features from sparse supervision. 2) However, the performance of \mathcal L_{DpCE}+ \mathcal L_{rec} was still not satisfied. The pseudo labeling component (\mathcal L_{pse}) improved it, demonstrating the effectiveness of the MaskMix strategy in enhancing scribble-supervised learning (Issue \sharp1). 3) We observed that the HD_{95} of \mathcal L_{DpCE}+\mathcal L_{rec}+\mathcal L_{pse} was still far below that of supervised methods, which meant that some target structures were lost and the boundaries were imprecise. However, adversarial learning (\mathcal L_{adv}) optimized this drawback (Issue \sharp2), reducing the HD_{95} discrepancy between the weakly and fully supervised methods.**
-
-<p align="center"><img width="100%" src="imgs/ablation_result.png" /></p>
-
-
 ## Packages Requirements
 - Hardware: PC with NVIDIA 1080T GPU. (others are alternative.)
 - Software: *Ubuntu 18.04*, *CUDA 10.0.130*, *pytorch 1.3.0*, *Python 3.6.9* (others are alternative.)
@@ -57,6 +42,7 @@ MSCMR_dataset/
   -- train/
       --images/
       --labels/
+        --patient001_frame01.h5
   ...
 ```
 
@@ -65,25 +51,24 @@ MSCMR_dataset/
 1. Clone this project.
 ```
 git clone ***************
-cd MaskMixAdv
+cd MaskMixAdv/code
 ```
 2. Data pre-processing os used or the processed data.
 ```
-cd code
 python dataloaders/acdc_data_processing.py
 ```
 3. Train the model
 ```
-cd code
 ./train_wss.sh
 ```
 
 4. Test the model
 ```
-python test_2D_fully.py --sup_type scribble/label --exp ACDC/the trained model fold --model unet
+python test_2D_fully.py --sup_type scribble (or label) --exp ACDC/the_trained_model_path --model unet_model
 ```
 
 # Implemented methods
+* Some of the results shown are referenced from those reported in the [CVPR 2022 & Supplementary](https://openaccess.thecvf.com/content/CVPR2022/html/Zhang_CycleMix_A_Holistic_Strategy_for_Medical_Image_Segmentation_From_Scribble_CVPR_2022_paper.html) and [Weakly-supervised benchmark](https://link.springer.com/chapter/10.1007/978-3-031-16431-6_50).
 * [**pCE**](https://openaccess.thecvf.com/content_cvpr_2018/papers/Tang_Normalized_Cut_Loss_CVPR_2018_paper.pdf) : [train_weakly_supervised_pCE_2D.py](./code/train_weakly_supervised_pCE_2D.py)
 * [**pCE + TV**](https://arxiv.org/pdf/1605.01368.pdf) : [train_weakly_supervised_pCE_TV_2D.py](./code/train_weakly_supervised_pCE_TV_2D.py)
 * [**pCE + Entropy Minimization**](https://arxiv.org/pdf/2111.02403.pdf) : [train_weakly_supervised_pCE_Entropy_Mini_2D.py](./code/train_weakly_supervised_pCE_Entropy_Mini_2D.py)
@@ -91,10 +76,36 @@ python test_2D_fully.py --sup_type scribble/label --exp ACDC/the trained model f
 * [**pCE + Intensity Variance Minimization**](https://arxiv.org/pdf/2111.02403.pdf) : [train_weakly_supervised_pCE_GatedCRFLoss_2D.py](./code/train_weakly_supervised_pCE_GatedCRFLoss_2D.py)
 * [**pCE + Random Walker**](http://vision.cse.psu.edu/people/chenpingY/paper/grady2006random.pdf) : [train_weakly_supervised_pCE_random_walker_2D.py](./code/train_weakly_supervised_pCE_random_walker_2D.py)
 * [**pCE + MumfordShah_Loss**](https://arxiv.org/pdf/1904.02872.pdf) : [train_weakly_supervised_pCE_MumfordShah_Loss_2D.py](./code/train_weakly_supervised_pCE_MumfordShah_Loss_2D.py)
-* [**Scribble2Label**](https://arxiv.org/pdf/2006.12890.pdf) : [train_weakly_supervised_pCE_GatedCRFLoss_2D.py](./code/train_weakly_supervised_pCE_GatedCRFLoss_2D.py)
+* [**Scribble2Label**](https://arxiv.org/pdf/2006.12890.pdf)
 * [**USTM**](https://www.sciencedirect.com/science/article/pii/S0031320321005215) : [train_weakly_supervised_ustm_2D.py](./code/train_weakly_supervised_ustm_2D.py)
 * [**WSL4MIS**](https://github.com/Luoxd1996/WSL4MIS) : [train_weakly_supervised_pCE_WSL4MIS.py](./code/train_weakly_supervised_pCE_WSL4MIS.py)
 
+## Major results from our work
+1. **The proposed MaskMixAdv achieved the best performance among all weakly-supervised learning SOTA methods on the MRI cardiac segmentation task. Results demonstrated the performance superiority of our work. Therefore, MaskMixAdv provided a more promising preferred alternative for scribble-supervised medical image segmentation, especially those without dense annotations.**
+
+<p align="center"><img width="100%" src="imgs/compare_result.png" /></p>
+
+
+2. **Visualization of the results illustrated that the discrepancy between MaskMixAdv trained on scribbles and the supervised method trained on dense annotations was minor. Besides, compared with previous methods that generated misshapen predictions, MaskMixAdv generated more realistic and reasonable segmentation masks, demonstrating the effectiveness of shape-aware adversarial learning that incorporated the boundary priors and encouraged the network to localize objects in the image.**
+
+<p align="center"><img width="100%" src="imgs/result1.png" /></p>
+
+3. **Ablation study indicated that: 1) Scribble-supervised methods performed poorly when only \mathcal L_{pCE} and \mathcal L_{DpCE} were applied. In contrast, performance improved after introducing \mathcal L_{rec}, demonstrating the effectiveness of the reconstruction method in helping the dual-branch siamese network to extract features from sparse supervision. 2) However, the performance of \mathcal L_{DpCE}+ \mathcal L_{rec} was still not satisfied. The pseudo labeling component (\mathcal L_{pse}) improved it, demonstrating the effectiveness of the MaskMix strategy in enhancing scribble-supervised learning (Issue \sharp1). 3) We observed that the HD_{95} of \mathcal L_{DpCE}+\mathcal L_{rec}+\mathcal L_{pse} was still far below that of supervised methods, which meant that some target structures were lost and the boundaries were imprecise. However, adversarial learning (\mathcal L_{adv}) optimized this drawback (Issue \sharp2), reducing the HD_{95} discrepancy between the weakly and fully supervised methods.**
+
+<p align="center"><img width="100%" src="imgs/ablation_result.png" /></p>
+
+4. **.**
+
+<p align="center"><img width="100%" src="imgs/mixup.png" /></p>
+
+5. **.**
+
+<p align="center"><img width="100%" src="imgs/points.png" /></p>
+
+
+6. **.**
+
+<p align="center"><img width="100%" src="imgs/perturbation.png" /></p>
 
 ## Acknowledgement
 Anonymous
