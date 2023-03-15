@@ -5,7 +5,7 @@
 
 3) MaskMixAdv learns to regularize the generated pseudo labels via shape-aware adversarial learning to incorporate additional shape priors, which can reduce the Hausdorff distance.
 
-<p align="center"><img width="100%" src="imgs/framework5.png" /></p>
+<p align="center"><img width="100%" src="imgs/framework.png" /></p>
 
 ## Packages Requirements
 - Hardware: PC with NVIDIA 1080T GPU. (others are alternative.)
@@ -64,7 +64,7 @@ python dataloaders/acdc_data_processing.py
 
 4. Test the model
 ```
-python test_2D_fully.py --sup_type scribble (or label) --exp ACDC/the_trained_model_path --model unet_model
+python test_2D_fully.py --sup_type <scribble or label> --exp ACDC/<the_trained_model_path> --model <model_name>
 ```
 
 # Implemented methods
@@ -79,6 +79,7 @@ python test_2D_fully.py --sup_type scribble (or label) --exp ACDC/the_trained_mo
 * [**Scribble2Label**](https://arxiv.org/pdf/2006.12890.pdf)
 * [**USTM**](https://www.sciencedirect.com/science/article/pii/S0031320321005215) : [train_weakly_supervised_ustm_2D.py](./code/train_weakly_supervised_ustm_2D.py)
 * [**WSL4MIS**](https://github.com/Luoxd1996/WSL4MIS) : [train_weakly_supervised_pCE_WSL4MIS.py](./code/train_weakly_supervised_pCE_WSL4MIS.py)
+* [**MaskMixAdv**](ours) : [train_weakly_supervised_pCE_MaskMixAdv.py](./code/train_weakly_supervised_pCE_MaskMixAdv.py)
 
 ## Major results from our work
 1. **The proposed MaskMixAdv achieved the best performance among all weakly-supervised learning SOTA methods on the MRI cardiac segmentation task. Results demonstrated the performance superiority of our work. Therefore, MaskMixAdv provided a more promising preferred alternative for scribble-supervised medical image segmentation, especially those without dense annotations.**
