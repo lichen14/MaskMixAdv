@@ -1,1 +1,0 @@
-[22:43:57.410] Namespace(base_lr=0.01, batch_size=6, deterministic=1, device='cuda', exp='ACDC/WeaklySeg_test', fold='fold1', mask_ratio=0.5, max_iterations=30000, model='unet_mae', num_classes=4, optim='sgd', patch_size=[256, 256], root_path='../data/ACDC', seed=42, sup_type='scribble')

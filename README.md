@@ -34,6 +34,7 @@
   - `skimage`
   - `medpy`
   - `tqdm`
+  - `nibabel`
   - `Efficientnet-Pytorch`: `pip install efficientnet_pytorch`
   - Other basic python packages such as `Numpy`, `Scikit-image`, `SimpleITK`, `Scipy`, `cv2` ......
 
