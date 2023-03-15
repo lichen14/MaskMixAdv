@@ -42,7 +42,7 @@
 Datasets and more details can be found from the following links. 
 * The ACDC dataset with mask annotations can be downloaded from: [ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/databases.html).
 * The Scribble annotations of ACDC can be downloaded from: [Scribble](https://gvalvano.github.io/wss-multiscale-adversarial-attention-gates/data).
-* The data processing code in [Here](https://github.com/Luoxd1996/WSL4MIS/blob/main/code/dataloaders/acdc_data_processing.py)  the pre-processed ACDC data in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
+* The data processing code in [Here](../code/dataloaders/acdc_data_processing.py), the pre-processed ACDC data in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
 * The MSCMR dataset with mask annotations can be downloaded from [MSCMRseg](https://zmiclab.github.io/zxh/0/mscmrseg19/data.html).
 * Please organize the dataset as the following structure:
 ```
@@ -53,6 +53,11 @@ ACDC/
   -- ACDC_training_volumes/
       --patient001_frame01.h5
       ...
+MSCMR_dataset/
+  -- train/
+      --images/
+      --labels/
+  ...
 ```
 
 # Usage
@@ -79,16 +84,16 @@ python test_2D_fully.py --sup_type scribble/label --exp ACDC/the trained model f
 ```
 
 # Implemented methods
-* [**pCE**](https://openaccess.thecvf.com/content_cvpr_2018/papers/Tang_Normalized_Cut_Loss_CVPR_2018_paper.pdf)
-* [**pCE + TV**](https://arxiv.org/pdf/1605.01368.pdf)
-* [**pCE + Entropy Minimization**](https://arxiv.org/pdf/2111.02403.pdf)
-* [**pCE + GatedCRFLoss**](https://github.com/LEONOB2014/GatedCRFLoss)
-* [**pCE + Intensity Variance Minimization**](https://arxiv.org/pdf/2111.02403.pdf)
-* [**pCE + Random Walker**](http://vision.cse.psu.edu/people/chenpingY/paper/grady2006random.pdf)
-* [**pCE + MumfordShah_Loss**](https://arxiv.org/pdf/1904.02872.pdf)
-* [**Scribble2Label**](https://arxiv.org/pdf/2006.12890.pdf)
-* [**USTM**](https://www.sciencedirect.com/science/article/pii/S0031320321005215)
-* [**WSL4MIS**](https://github.com/Luoxd1996/WSL4MIS)
+* [**pCE**](https://openaccess.thecvf.com/content_cvpr_2018/papers/Tang_Normalized_Cut_Loss_CVPR_2018_paper.pdf) : [train_weakly_supervised_pCE_2D.py](./code/train_weakly_supervised_pCE_2D.py)
+* [**pCE + TV**](https://arxiv.org/pdf/1605.01368.pdf) : [train_weakly_supervised_pCE_TV_2D.py](./code/train_weakly_supervised_pCE_TV_2D.py)
+* [**pCE + Entropy Minimization**](https://arxiv.org/pdf/2111.02403.pdf) : [train_weakly_supervised_pCE_Entropy_Mini_2D.py](./code/train_weakly_supervised_pCE_Entropy_Mini_2D.py)
+* [**pCE + GatedCRFLoss**](https://github.com/LEONOB2014/GatedCRFLoss) : [train_weakly_supervised_pCE_GatedCRFLoss_2D.py](./code/train_weakly_supervised_pCE_GatedCRFLoss_2D.py)
+* [**pCE + Intensity Variance Minimization**](https://arxiv.org/pdf/2111.02403.pdf) : [train_weakly_supervised_pCE_GatedCRFLoss_2D.py](./code/train_weakly_supervised_pCE_GatedCRFLoss_2D.py)
+* [**pCE + Random Walker**](http://vision.cse.psu.edu/people/chenpingY/paper/grady2006random.pdf) : [train_weakly_supervised_pCE_random_walker_2D.py](./code/train_weakly_supervised_pCE_random_walker_2D.py)
+* [**pCE + MumfordShah_Loss**](https://arxiv.org/pdf/1904.02872.pdf) : [train_weakly_supervised_pCE_MumfordShah_Loss_2D.py](./code/train_weakly_supervised_pCE_MumfordShah_Loss_2D.py)
+* [**Scribble2Label**](https://arxiv.org/pdf/2006.12890.pdf) : [train_weakly_supervised_pCE_GatedCRFLoss_2D.py](./code/train_weakly_supervised_pCE_GatedCRFLoss_2D.py)
+* [**USTM**](https://www.sciencedirect.com/science/article/pii/S0031320321005215) : [train_weakly_supervised_ustm_2D.py](./code/train_weakly_supervised_ustm_2D.py)
+* [**WSL4MIS**](https://github.com/Luoxd1996/WSL4MIS) : [train_weakly_supervised_pCE_WSL4MIS.py](./code/train_weakly_supervised_pCE_WSL4MIS.py)
 
 
 ## Acknowledgement
