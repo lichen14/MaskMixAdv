@@ -7,7 +7,7 @@
 
 3) MaskMixAdv learns to regularize the generated pseudo labels via shape-aware adversarial learning to incorporate additional shape priors, which can reduce the Hausdorff distance.
 
-<p align="center"><img width="=100%" src="imgs/framework.png" /></p>
+<p align="center"><img width="=80%" src="imgs/framework.png" /></p>
 
 ## Packages Requirements
 - Hardware: PC with NVIDIA 1080T GPU. (others are alternative.)
@@ -85,31 +85,31 @@ python test_2D_fully.py --sup_type <scribble or label> --exp ACDC/<the_trained_m
 ## Major results from our work
 1. **MaskMixAdv achieved the best performance among all weakly-supervised learning SOTA methods on the MRI cardiac segmentation.**
 
-<p align="center"><img width="90%" src="imgs/compare_result.png" /></p>
+<p align="center"><img width="70%" src="imgs/compare_result.png" /></p>
 
 
 2. **The discrepancy between MaskMixAdv trained on scribbles and the supervised method trained on dense annotations was minor. Compared with previous methods that generated misshapen predictions, MaskMixAdv generated more realistic and reasonable segmentation masks.**
 
-<p align="center"><img width="80%" src="imgs/results1.png" /></p>
+<p align="center"><img width="70%" src="imgs/results1.png" /></p>
 
 3. **Ablation study indicated that:**
 **1) Scribble-supervised methods performed poorly when only L_pCE and L_DpCE were applied. In contrast, performance improved after introducing L_rec.**
 **2) The 3D Dice of L_DpCE + L_rec was still not satisfied. The pseudo labeling component (L_pse) improved it.**
 **3) The HD_95 of L_DpCE + L_rec + L_pse was still far below that of supervised methods. Adversarial learning (L_adv) reduced the HD_95 discrepancy between the weakly and fully supervised methods.**
 
-<p align="center"><img width="90%" src="imgs/ablation_result.png" /></p>
+<p align="center"><img width="70%" src="imgs/ablation_result.png" /></p>
 
 4. **MaskMixAdv achieved the best performance among all image-level and feature-level perturbations on the MRI cardiac segmentation.**
 
-<p align="center"><img width="80%" src="imgs/mixup.png" /></p>
+<p align="center"><img width="70%" src="imgs/mixup.PNG" /></p>
 
 5. **Visual demonstration of the results of the proposed MaskMixAdv and other methods for cardiac MR data perturbation. Only perturbations at the image level are shown here, and perturbations at the feature level are similar and thus omitted. For the Mixup-based approach, we introduce white outlines to easily distinguish the multi-sample mixing process. Note the scribbles shown here are bolded for ease of viewing.**
 
-<p align="center"><img width="80%" src="imgs/perturbation.png" /></p>
+<p align="center"><img width="70%" src="imgs/perturbation.png" /></p>
 
 6. **MaskMixAdv was extended to point-supervised cardiac segmentation on the ACDC dataset. The minor performance gap demonstrated the scalability of our work. We will release the code for generating point annotations before publication in this repo.**
 
-<p align="center"><img width="100%" src="imgs/points.png" /></p>
+<p align="center"><img width="90%" src="imgs/points.PNG" /></p>
 
 ## Acknowledgement
 Anonymous
