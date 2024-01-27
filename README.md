@@ -34,7 +34,7 @@ Datasets and more details can be found from the following links.
 
 * The MSCMR dataset with paired mask annotations can be downloaded from [MSCMRseg](https://zmiclab.github.io/zxh/0/mscmrseg19/data.html).
 * The scribble annotations of MSCMR can be downloaded from: [Scribble](https://github.com/BWGZK/CycleMix/tree/main/MSCMR_scribbles).
-* 
+
 * Please organize the dataset as the following structure:
 ```
 ACDC/
@@ -51,7 +51,7 @@ MSCMR_dataset/
         --patient001_frame01.h5
   ...
 ```
-* The data processing code is released in [Here](../code/dataloaders/acdc_data_processing.py), the pre-processed ACDC dataset is released in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
+* The data processing code is released in [Here](https://github.com/lichen14/MaskMixAdv/blob/main/code/dataloaders/acdc_data_processing.py), the pre-processed ACDC dataset is released in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
 
 # Usage
 
