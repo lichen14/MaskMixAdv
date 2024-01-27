@@ -26,11 +26,15 @@
   - Other basic python packages such as `Numpy`, `Scikit-image`, `SimpleITK`, `Scipy`, `cv2` ......
 
 # Dataset
+The case study conducted an assessment of the MaskMixAdv framework in the context of Cardiac MRI segmentation, which served as an ideal scenario to assess the capabilities and practicality of the MaskMixAdv framework. This case study focused on the specific task of delineating the left ventricular cavity, myocardium, and right ventricle from MRI images.
+
 Datasets and more details can be found from the following links. 
-* The ACDC dataset with mask annotations can be downloaded from: [ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/databases.html).
-* The Scribble annotations of ACDC can be downloaded from: [Scribble](https://gvalvano.github.io/wss-multiscale-adversarial-attention-gates/data).
-* The data processing code in [Here](../code/dataloaders/acdc_data_processing.py), the pre-processed ACDC data in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
-* The MSCMR dataset with mask annotations can be downloaded from [MSCMRseg](https://zmiclab.github.io/zxh/0/mscmrseg19/data.html).
+* The ACDC dataset with paired mask annotations can be downloaded from: [ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/databases.html).
+* The scribble annotations of ACDC can be downloaded from: [Scribble](https://gvalvano.github.io/wss-multiscale-adversarial-attention-gates/data).
+
+* The MSCMR dataset with paired mask annotations can be downloaded from [MSCMRseg](https://zmiclab.github.io/zxh/0/mscmrseg19/data.html).
+* The scribble annotations of MSCMR can be downloaded from: [Scribble](https://github.com/BWGZK/CycleMix/tree/main/MSCMR_scribbles).
+* 
 * Please organize the dataset as the following structure:
 ```
 ACDC/
@@ -47,6 +51,7 @@ MSCMR_dataset/
         --patient001_frame01.h5
   ...
 ```
+* The data processing code is released in [Here](../code/dataloaders/acdc_data_processing.py), the pre-processed ACDC dataset is released in [Here](https://github.com/HiLab-git/WSL4MIS/tree/main/data/ACDC).
 
 # Usage
 
